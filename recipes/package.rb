@@ -20,6 +20,8 @@
 
 include_recipe 'nginx::ohai_plugin'
 
+my_version = node['nginx']['version']
+
 if platform_family?('rhel')
   if node['nginx']['repo_source'] == 'epel'
     include_recipe 'yum-epel'
@@ -34,10 +36,13 @@ if platform_family?('rhel')
   end
 elsif platform_family?('debian')
   include_recipe 'nginx::repo' if node['nginx']['repo_source'] == 'nginx'
+  my_version << '*'
 end
 
 package node['nginx']['package_name'] do
   notifies :reload, 'ohai[reload_nginx]', :immediately
+  version my_version
+  action [:upgrade]
 end
 
 service 'nginx' do
