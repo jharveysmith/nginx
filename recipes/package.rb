@@ -20,7 +20,7 @@
 
 include_recipe 'nginx::ohai_plugin'
 
-my_version = node['nginx']['version']
+my_version = node['nginx']['pkg_version'] || node['nginx']['version']
 
 if platform_family?('rhel')
   if node['nginx']['repo_source'] == 'epel'
@@ -36,7 +36,7 @@ if platform_family?('rhel')
   end
 elsif platform_family?('debian')
   include_recipe 'nginx::repo' if node['nginx']['repo_source'] == 'nginx'
-  my_version << '*'
+  my_version << '*' unless my_version.end_with('*')
 end
 
 package node['nginx']['package_name'] do
